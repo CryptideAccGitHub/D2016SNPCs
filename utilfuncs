@@ -1,2 +1,8 @@
 local m_ENT = FindMetaTable("Entity")
-local m_NPC = FindMetaTable("NPC")
+local m_PLY = FindMetaTable("Player")
+local m_WPN = FindMetaTable("Weapon")
+local m_BOT = FindMetaTable("NextBot")
+
+function m_BOT:b_AnimPlay(anim,facetarget,delay)
+
+end
