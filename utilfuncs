@@ -3,6 +3,11 @@ local m_PLY = FindMetaTable("Player")
 local m_WPN = FindMetaTable("Weapon")
 local m_BOT = FindMetaTable("NextBot")
 
-function m_BOT:b_AnimPlay(anim,facetarget,delay)
-
+function m_BOT:b_AnimPlay(anim,delay)
+if delay == nil then delay = 0 end
+if anim == nil then print("Cont find animation") end
+timer.Simple(delay,function() if self:IsValid() then
+self:StartActivity(self:LookupSequence(anim))
+end
+end)
 end
