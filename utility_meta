@@ -1,0 +1,7 @@
+--Some metafiles that can be used in anything.
+
+function GetTbl(tbl, number)
+if tbl == nil then return tbl end
+_num = number or math.random(1,#tbl)
+return tbl[_num]
+end
