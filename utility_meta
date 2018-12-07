@@ -5,3 +5,8 @@ if tbl == nil then return tbl end
 _num = number or math.random(1,#tbl)
 return tbl[_num]
 end
+
+function InCone(startpos, conedir, targetpos, rad)
+  _dir = conedir:GetNormalized()
+	return (_dir:Dot(((targetpos) startpos + _dir * 15):GetNormalized()) > math.cos(math.rad(rad)))
+end
