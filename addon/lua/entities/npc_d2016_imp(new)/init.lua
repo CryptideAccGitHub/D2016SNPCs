@@ -60,10 +60,10 @@ function ENT:HandleSchedules(enemy,dist,nearest,disp,time)
 		if dist < 150 and self:GetCurrentAnimation() == "idle" then
 			self:PlayActivity("meleeforward0"..math.random(1,2))
 		elseif dist < 160 and self:GetCurrentAnimation() == "run" then
-			self:PlayActivityENTERANMOVEMENTMELEEACTIVITYFAGGOT --("meleeforward0"..math.random(1,2))
+			self:PlayActivityENTERAMOVEMENTMELEEACTIVITYFAGGOT --("meleeforward0"..math.random(1,2))
 		end
 		
-		-- Just an id;e
+		-- Just an idle
 		
 		if self.CSTATE == "Idle_NoEnemy" then
 			if self:GetEnemy() != nil then
@@ -75,9 +75,9 @@ function ENT:HandleSchedules(enemy,dist,nearest,disp,time)
 		-- It runs to enemy/around enemy.
 			
 		elseif self.CSTATE == "InFight_Running" then
-			if self.NEXTCSTATE <= CurTime() and dist > 600 and dist < 1000  then
+			if self.NEXTCSTATE <= CurTime() and dist > 600 and dist < 1200  then
 				self.CSTATE = "InFight"
-				self.NEXTCSTATE = CurTime()+math.Rand(10,15)
+				self.NEXTCSTATE = CurTime()+math.Rand(5,15)
 			elseif dist < 200 then
 				if self:Health <= 110 then self:RunAway() else self:ChaseEnemy() end
 				self.NEXTCSTATE = CurTime()+math.Rand(3,5)
@@ -96,9 +96,26 @@ function ENT:HandleSchedules(enemy,dist,nearest,disp,time)
 		
 		-- It stands and throws its shit.	
 		elseif self.CSTATE == "InFight"
-			if (self.NEXTCSTATE <= CurTime()) or (dist > 1000)  then
+			
+			if self.NEXTATTACK <= CurTime() then
+				if self.NEXTHEAVYATTACK <= CurTime() then
+					if IMP_COUNT > 1 then
+						local _e = ents.GetAll()
+						for k,v in ipairs(_e) then
+							if v.ISD2016NPC and v:GetClass() == "npc_d2016_imp" then
+								v.NEXTHEAVYATTACK = CurTime()+math.random(5,12)
+							end
+						end
+						self:PlayActivity(THATSHITTYSPECIAL)
+					end
+				else
+					self:PlayActivity(ENTERARANGEATTACKACTIVITYFAGGOT)
+				end
+			end
+			
+			if (self.NEXTCSTATE <= CurTime()) or (dist > 1200)  then
 				self.CSTATE = "InFight_Running"
-				self.NEXTCSTATE = CurTime()+math.Rand(10,15)
+				self.NEXTCSTATE = CurTime()+math.Rand(5,15)
 			elseif dist < 300 then
 				if self:Health <= 120 then self:RunAway() else self:ChaseEnemy() end
 				self.NEXTCSTATE = CurTime()+math.Rand(3,5)
