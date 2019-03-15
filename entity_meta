@@ -1,3 +1,0 @@
-local m_ENT = FindMetaTable("Entity")
-local m_NPC = FindMetaTable("NPC")
-local m_PLY = FindMetaTable("Player")
