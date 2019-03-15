@@ -1,4 +1,5 @@
 AddCSLuaFile('doom2016_autorun_base.lua')
+AddCSLuaFile('doom2016_autorun_base.lua')
 include('doom2016_utilities.lua')
 
 --[[
