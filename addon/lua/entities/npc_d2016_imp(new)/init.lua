@@ -55,7 +55,7 @@ function ENT:HandleSchedules(enemy,dist,nearest,disp,time)
 	if self:CanPerformProcess() then
 		
 		if self.CSTATE ~= "Idle_NoEnemy" and self.EnemyMemoryCount < 1 then
-		self.CSTATE = "InFight_NoEnemy"
+		self.CSTATE = "Idle_NoEnemy"
 		end
 		
 		if dist < 150 and self:GetCurrentAnimation() == "idle" then
