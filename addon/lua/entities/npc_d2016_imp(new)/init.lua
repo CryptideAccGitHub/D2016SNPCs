@@ -19,7 +19,7 @@ end
 --Basic set-up
 ENT.ModelTable = self_model
 ENT.CollisionBounds = Vector(0,0,0)
-ENT.StartHealth = 120
+ENT.StartHealth = 125
 ENT.ViewAngle = 180
 ENT.Faction = "FACTION_DOOM2016"
 
@@ -43,7 +43,7 @@ function ENT:SetInit()
 	self:SetHullType(HULL_MEDIUM)
 	self:SetMovementType(MOVETYPE_STEP)
 	self:SetIdleAnimation("idle")
-	
+	self:CustomEffects()
 	self.CSTATE("Idle_NoEnemy")
 	self.CanWander = false
 	DEMON_COUNT = DEMON_COUNT+1
@@ -148,6 +148,15 @@ function ENT:OnRemove()
 	DEMON_COUNT = DEMON_COUNT-1
 end
 
+function ENT:CustomEffects()
+	if deco == 0 then
+		return
+	elseif deco == 1 then
+		return
+	elseif deco == 2 then
+		return
+	end
+end
 
 function ENT:OnDeath(dmg,dmginfo,hitbox)
 	DEMON_COUNT = DEMON_COUNT-1
@@ -167,8 +176,3 @@ function ENT:OnDeath(dmg,dmginfo,hitbox)
 		end
 	end
 end
-
-
-
-
-
