@@ -3,15 +3,17 @@ AddCSLuaFile('doom2016_autorun_base.lua')
 include('doom2016_utilities.lua')
 
 --[[
-Hello human. If you`re here, it means that you decompiled and opened my addon.
+Hello human.
+
+If you`re here, it means that you decompiled and opened my addon.
 Its not my problem why and how, but i want to ask you to don`t steal anything from it. Please.
 
 You can take all models, sounds and textures because they`re exclusive now in Garry`s Mod workshop.
-That resources don`t belongs to me, because DOOM (2016) and its resources are made by ID Software.
-I used them without any permission, and its not a shame.
+That resources don`t belongs to me, because DOOM (2016) and it`s resources was made by ID Software.
+I used them without any permission, and it`s not bad.
 I dont know who are you, are you a fucked up stealer, or you`re just a guy who tries to find examples for his work.
-Maybe you want to do it because you just want to know how it works (don`t try, i even dont know).
-Anyway, if you want to steal it, close it and uninstall your OC. Now.
+Maybe you want to do it because you just want to know how it works (don`t try, even i dont know).
+Anyway, if you want to steal it, close this file and uninstall your OC. Now.
 
 Good luck.
 
@@ -21,6 +23,11 @@ Good luck.
 D2016_BASEMOUNTED = true
 
 local Category = "DOOM (2016)"
+
+DEMON_COUNT = 0
+DEMON_MEDIUM_EXIST = false
+DEMON_HEAVY_EXIST = false
+BOSS_EXIST = false
 
 if D2016_BASEMOUNTED then
 --CPTBase.AddNPC("Possessed Scientist","npc_d2016_scientist", Category)
