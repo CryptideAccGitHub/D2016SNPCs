@@ -34,6 +34,7 @@ ENT.NEXTCTASK = CurTime()+1
 ENT.NEXTHEAVYATTACK = CurTime()+math.random(3,8)
 ENT.NEXTCSTATE = ""
 ENT.NEXTATTACK = CurTime() + 1
+ENT.NEXTSPECIALMOVEMENT = CurTime() + math.random(5,8)
 ENT.CSTATE = ""
 ENT.CTARGET = self:GetPos()
 ENT.NEXTCTARGET = CurTime()+1
@@ -83,7 +84,16 @@ function ENT:HandleSchedules(enemy,dist,nearest,disp,time)
 				self.NEXTCSTATE = CurTime()+math.Rand(3,5)
 			end
 			
+			if self.NEXTSPECMOVEMENT <= CurTime() and self:FindInCone(enemy,90) then
+				self.PlayActivity(ROLLFORWARD)
+				self.NEXTSPECMOVEMENT = CurTime() + math.random(5,8)
+			elseif self.NEXTSPECMOVEMENT <= CurTime() then
+				self.PlayActivity(ROLLFORWARD2)
+				self.NEXTSPECMOVEMENT = CurTime() + math.random(5,8)
+			end
+			
 			if self:FindInCone(enemy,90) and dist > 300 then
+			self:PlayActivity(ENTERARANGEATTACKACTIVITYFAGGOT)		
 			end
 			
 			if dist > 700 then
@@ -112,11 +122,16 @@ function ENT:HandleSchedules(enemy,dist,nearest,disp,time)
 					self:PlayActivity(ENTERARANGEATTACKACTIVITYFAGGOT)
 				end
 			end
+		
+			if self.NEXTSPECMOVEMENT <= CurTime() and self:FindInCone(enemy,90) then
+				self.PlayActivity(JUMPLEFTRIGHT)
+				self.NEXTSPECMOVEMENT = CurTime() + math.random(5,8)
+			end
 			
 			if (self.NEXTCSTATE <= CurTime()) or (dist > 1200)  then
 				self.CSTATE = "InFight_Running"
 				self.NEXTCSTATE = CurTime()+math.Rand(5,15)
-			elseif dist < 300 then
+			elseif (self.NEXTCSTATE <= CurTime()) and (dist < 300) then
 				if self:Health <= 120 then self:RunAway() else self:ChaseEnemy() end
 				self.NEXTCSTATE = CurTime()+math.Rand(3,5)
 			end
