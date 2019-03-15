@@ -79,8 +79,8 @@ function ENT:HandleSchedules(enemy,dist,nearest,disp,time)
 			if self.NEXTCSTATE <= CurTime() and dist > 600 and dist < 1200  then
 				self.CSTATE = "InFight"
 				self.NEXTCSTATE = CurTime()+math.Rand(5,15)
-			elseif dist < 200 then
-				if self:Health <= 110 then self:RunAway() else self:ChaseEnemy() end
+			elseif dist < 300 then
+				if self:IsFrightened() then self:RunAway() else self:ChaseEnemy() end
 				self.NEXTCSTATE = CurTime()+math.Rand(3,5)
 			end
 			
@@ -146,6 +146,17 @@ end
 
 function ENT:OnRemove()
 	DEMON_COUNT = DEMON_COUNT-1
+end
+
+function ENT:RunAway()
+self:PlayActivity(PUTHEREYOURSHITTYACTIVITY)
+/PUTSOMESHITTYMOVINGCODEHERE/
+end
+
+function ENT:IsFrightened()
+if (self:GetEnemy():Health()=>300) or ((DEMON_COUNT <= 5) and (DEMON_MEDIUM_EXIST == false) and (DEMON_HEAVY_EXIST == false)) or self:Health()<=110
+return true
+end
 end
 
 function ENT:CustomEffects()
