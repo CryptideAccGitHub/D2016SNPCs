@@ -1,3 +1,5 @@
+if !CPTBase then print("INSTALL A CPTBASE, FAGGOT") return end
+
 AddCSLuaFile('doom2016_autorun_base.lua')
 AddCSLuaFile('doom2016_utilities.lua')
 include('doom2016_utilities.lua')
