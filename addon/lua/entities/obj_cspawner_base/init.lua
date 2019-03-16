@@ -14,7 +14,6 @@ ENT.SpawnedEnts = {}
 
 function ENT:OnSpawn(key,data) end
 function ENT:CustomEffects() end
-function ENT:OnRemove() end
 function ENT:Think() end
 
 function ENT:Initialize()
