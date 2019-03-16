@@ -1,3 +1,4 @@
+ENT.Type 			= "anim"
 ENT.Base 			= "obj_cspawner_base"
 ENT.PrintName		= "Imp"
 ENT.Author			= "REXMaster"
