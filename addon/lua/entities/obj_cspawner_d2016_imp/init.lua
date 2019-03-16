@@ -2,8 +2,6 @@ AddCSLuaFile("cl_init.lua")
 AddCSLuaFile("shared.lua")
 include('shared.lua')
 
-ENT.PhysicsType = SOLID_VPHYSICS
-ENT.SolidType = SOLID_CUSTOM
 ENT.CollisionGroup = COLLISION_GROUP_NONE
 ENT.MoveType = MOVETYPE_NONE
 ENT.EntsToSpawn = {
