@@ -1,5 +1,5 @@
 AddCSLuaFile('doom2016_autorun_base.lua')
-AddCSLuaFile('doom2016_autorun_base.lua')
+AddCSLuaFile('doom2016_utilities.lua')
 include('doom2016_utilities.lua')
 
 --[[
@@ -32,7 +32,7 @@ BOSS_EXIST = false
 if D2016_BASEMOUNTED then
 --CPTBase.AddNPC("Possessed Scientist","npc_d2016_scientist", Category)
 --CPTBase.AddNPC("Possessed Worker","npc_d2016_worker", Category)
-	CPTBase.AddNPC("Imp","obj_d2016_imp_spawner", Category)
+	CPTBase.AddNPC("Imp","obj_cspawner_d2016_imp", Category)
 --CPTBase.AddNPC("Unwilling","obj_d2016_unwilling_spawner", Category)
 --CPTBase.AddNPC("Possessed Soldier","obj_d2016_soldier_spawner", Category)	
 --CPTBase.AddNPC("Possessed Security","obj_d2016_security_spawner", Category)
