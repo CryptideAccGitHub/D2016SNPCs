@@ -2,8 +2,6 @@ AddCSLuaFile("cl_init.lua")
 AddCSLuaFile("shared.lua")
 include('shared.lua')
 
-ENT.PhysicsType = SOLID_VPHYSICS
-ENT.SolidType = SOLID_CUSTOM
 ENT.CollisionGroup = COLLISION_GROUP_NONE
 ENT.MoveType = MOVETYPE_NONE
 ENT.EntsToSpawn = {
@@ -20,7 +18,6 @@ function ENT:Initialize()
 	self:SetCollisionGroup(self.CollisionGroup)
 	self:SetModel("models/error.mdl")
 	self:SetMoveType(self.MoveType)
-	self:SetSolid(self.SolidType)
 	self:SetNoDraw(true)
 	self:DrawShadow(false)
 	self:Physics()
