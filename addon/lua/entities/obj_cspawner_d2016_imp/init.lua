@@ -7,8 +7,10 @@ ENT.SolidType = SOLID_CUSTOM
 ENT.CollisionGroup = COLLISION_GROUP_NONE
 ENT.MoveType = MOVETYPE_NONE
 ENT.EntsToSpawn = {
---{Name = "entity1", AddPos = Vector(0,0,0), Timer = 1, Class = {"npc_zombie"}, Parameters = {StartHealth = 100}}
+{Name = "entity", AddPos = Vector(0,0,0), Timer = 1, Class = {"npc_d2016_imp"}}
 }
-ENT.SpawnedEnts = {}
 
-function ENT:CustomEffects() end
+function ENT:CustomEffects()
+  ParticleEffect("monster_spawn_small",self:GetPos()+self:GetUp()*-35, self:GetAngles())
+  sound.Play("monster_spawn"..math.random(1,2)..".ogg",self:GetPos())
+end
