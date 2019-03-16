@@ -1,0 +1,14 @@
+VertexLitGeneric
+{
+$basetexture "models\monsters\imp\imp_diffuse"
+$bumpmap "models\monsters\imp\imp_normal"
+$phong 1
+$phonexponenttexture "models\monsters\imp\imp_exponent"
+$AmbientOcclusionTexture  "models\monsters\imp\imp_exponent"
+$phong "1"
+$phongfresnelranges	"[1 1.05 1.25]"
+$phongboost	"0.3"
+$selfillum 1
+$selfillummask "models\monsters\imp\imp_lightmap"
+$selfillumtint "[5 4 0]"
+}

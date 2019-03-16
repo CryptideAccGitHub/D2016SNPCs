@@ -1,0 +1,7 @@
+"UnlitGeneric"
+{
+	"$basetexture" "vgui/entities/obj_cspawner_d2016_imp"
+	"$translucent" 1
+	"$vertexalpha" 1
+	"$vertexcolor" 1
+}

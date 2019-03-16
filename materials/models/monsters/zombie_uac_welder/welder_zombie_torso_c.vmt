@@ -1,0 +1,10 @@
+
+VertexLitGeneric
+{
+$basetexture "models\monsters\zombie_uac_welder\welder_zombie_torso_diffuse"
+$bumpmap "models\monsters\zombie_uac_welder\welder_zombie_torso_normal"
+$phong 1
+$phonexponenttexture "models\monsters\zombie_uac_welder\welder_zombie_torso_exponent"
+$phongfresnelranges "[1 2 0]"
+$phongboost 1
+}

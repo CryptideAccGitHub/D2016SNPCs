@@ -1,0 +1,13 @@
+VertexLitGeneric
+{
+$basetexture "models\monsters\mancubus\mancubus_guns_diffuse"
+$bumpmap "models\monsters\mancubus\mancubus_guns_normal"
+$ambientocclusion "1"
+$phong "1"
+$phongexponent "16"
+$phongfresnelranges	"[1 1.05 1.25]"
+$phongboost	"0.2"
+$selfillum 1
+$selfillummask "models\monsters\mancubus\mancubus_guns_lightmap"
+$selfillumtint "[15 12 0]"
+}
