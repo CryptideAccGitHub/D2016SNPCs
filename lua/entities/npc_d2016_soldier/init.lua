@@ -26,6 +26,7 @@ ENT.tbl_Animations = {
 ["Run"] = {"runforward"},
 ["Walk"] = {"walkforward"}
 }
+
 ENT.tbl_Capabilities = {CAP_OPEN_DOORS}
 
 --Custom set-upw
@@ -95,12 +96,15 @@ function ENT:HandleSchedules(enemy,dist,nearest,disp,time)
 			sound.Play("possessed_soldier/PossessedAttackYell"..math.random(1,5)..".ogg",self:GetPos())
 			self:PlayActivity("melee_from_run")
 			return
-		elseif (dist > 300 and dist < 800) and self:GetCurrentAnimation() == "runforward" and self:Visible(self:GetEnemy()) then
+		elseif (dist > 300 and dist < 800) then
+
+			self:GetCurrentAnimation() == "runforward" and self:Visible(self:GetEnemy()) then
 			if self.t_NextAttack < CurTime() and math.random(1,5) == 5 then
 			self.t_NextAttack = CurTime() + math.Rand(6,9)
 			self:PlayActivity("shoot_from_run"..math.random(1,5))
 			return
 			end
+
 		end
 		
 		if ((self:GetCurrentAnimation() == "idle" or self:GetCurrentAnimation() == "walkforward")) and self:FindInCone(enemy,70) and dist > 200 and dist < 800 and self.t_NextAttack < CurTime() then
