@@ -3,7 +3,7 @@ include('shared.lua')
 
 ENT.ISD2016SPAWNER = true
 ENT.EntsToSpawn = {
-{Name = "entity", AddPos = Vector(0,0,0), Timer = 1, Class = {"npc_d2016_imp"}}
+{Name = "entity", AddPos = Vector(0,0,0), Timer = 1, Class = {"npc_d2016_soldier"}}
 }
 
 function ENT:CustomEffects()

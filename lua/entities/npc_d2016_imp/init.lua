@@ -13,13 +13,16 @@ ENT.CollisionBounds = Vector(0,0,0)
 ENT.StartHealth = 125
 ENT.ViewAngle = 180
 ENT.Faction = "FACTION_DOOM2016"
-ENT.AttackablePropNames = {"prop_physics","func_breakable","prop_physics_multiplayer","func_physbox"}
 ENT.AllowPropDamage = false
 
 ENT.BloodEffect = {"blood_impact_red_01"}
 
 ENT.Possessor_CanBePossessed = true
 ENT.Possessor_UseBoneCamera = true
+
+ENT.LeavesBlood = true
+ENT.AutomaticallySetsUpDecals = true
+ENT.BloodDecal = {"Blood"}
 
 ENT.tbl_Animations = {
 ["Idle"] = {"idle"},
@@ -75,8 +78,10 @@ function ENT:HandleSchedules(enemy,dist,nearest,disp,time)
 		
 		if dist < 120 and self:FindInCone(enemy,90) then
 			self:PlayActivity("meleeforward0"..math.random(1,2))
+			return
 		elseif dist < 170 and self:FindInCone(enemy,50) and math.random(1,2) == 1 then
 			self:PlayActivity("meleemoving0"..math.random(1,3))
+			return
 		end
 		
 		-- Just an idle
@@ -91,7 +96,7 @@ function ENT:HandleSchedules(enemy,dist,nearest,disp,time)
 		-- It runs to enemy/around enemy.
 			
 		elseif self.CSTATE == "InFight_Running" then
-			if self.NEXTCSTATE < CurTime() and dist > 300 and dist < 800 and self:GetCurrentAnimation() == "runforward" then
+			if self.NEXTCSTATE < CurTime() and dist > 300 and dist < 800 and self:GetCurrentAnimation() == "runforward" and self:Visible(self:GetEnemy()) then
 				self.CTARGET = self:GetPos()
 				local enemypos = self:GetEnemy():GetPos()
 				if self:CheckAngleTo(enemypos).y < 45 and self:CheckAngleTo(enemypos).y > -45 then
@@ -122,7 +127,7 @@ function ENT:HandleSchedules(enemy,dist,nearest,disp,time)
 				return
 			end
 			
-			if self:FindInCone(enemy,90) and dist > 200 and dist < 800 and CurTime() > self.NEXTATTACK then
+			if self:FindInCone(enemy,90) and dist > 200 and dist < 800 and CurTime() > self.NEXTATTACK and self:Visible(self:GetEnemy()) then
 				self:PlayActivity("runforward_throwforward")	
 				self.NEXTATTACK = CurTime() + math.Rand(3,5)
 				return
@@ -159,7 +164,7 @@ function ENT:HandleSchedules(enemy,dist,nearest,disp,time)
 				return
 			end
 			
-			if self.NEXTATTACK < CurTime() and self:FindInCone(enemy,90) and dist < 800 and self:CanPerformProcess() then
+			if self.NEXTATTACK < CurTime() and self:FindInCone(enemy,90) and dist < 800 and self:CanPerformProcess() and self:Visible(self:GetEnemy()) then
 				if self.NEXTHEAVYATTACK < CurTime() then
 					self:PlayActivity(self:SelectFromTable({"throw_fastball","throw_fastball2"}))
 					return
@@ -281,12 +286,6 @@ end
 
 function ENT:RangeAttack_Normal(att)
 	self:StopParticles()
-	local _e = ents.GetAll()
-	for k,v in ipairs(_e) do
-		if v.ISD2016NPC and v:GetClass() == "npc_d2016_imp" then
-			v.NEXTATTACK = v.NEXTATTACK+math.random(25,35)*0.01
-		end
-	end
 	self.NEXTATTACK = CurTime()+math.Rand(3,8)
 	local fireball = ents.Create("obj_proj_impball")
 	fireball:SetPos(self:GetAttachment(self:LookupAttachment(att)).Pos)
@@ -301,13 +300,7 @@ end
 
 function ENT:RangeAttack_Powered(att)
 	self:StopParticles()
-	local _e = ents.GetAll()
-	for k,v in ipairs(_e) do
-		if v.ISD2016NPC and v:GetClass() == "npc_d2016_imp" then
-			v.NEXTHEAVYATTACK = v.NEXTHEAVYATTACK+math.random(15,25)*0.1
-		end
-	end
-	self.NEXTHEAVYATTACK = CurTime()+math.Rand(4,6)
+	self.NEXTHEAVYATTACK = CurTime()+math.Rand(7,15)
 	local fireball = ents.Create("obj_proj_impball")
 	fireball:SetPos(self:GetAttachment(self:LookupAttachment(att)).Pos)
 	fireball:SetOwner(self)
@@ -393,10 +386,11 @@ function ENT:OnDeath(dmg,dmginfo,hitbox)
 			gib:SetAngles(Angle(math.random(0,360),math.random(0,360),math.random(0,360)))
 			gib:SetOwner(self)
 			gib:Spawn()
+			ParticleEffect("blood_impact_red_big",self:GetPos()+self:OBBCenter(),Angle(math.random(0,360),math.random(0,360),math.random(0,360)),false)
 			gib:Activate()
 			local phys = gib:GetPhysicsObject()
 			if IsValid(phys) then
-				phys:SetVelocity(Vector(math.Rand(-50,50),math.Rand(-50,50),math.Rand(-50,50)) +self:GetUp() * 200 + dmg:GetDamageForce()/10)
+				phys:SetVelocity(Vector(math.Rand(-80,80),math.Rand(-80,80),math.Rand(-80,80)) +self:GetUp() * 200 + dmg:GetDamageForce()/20)
 			end
 		end
 	end

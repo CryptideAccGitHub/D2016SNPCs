@@ -28,7 +28,7 @@ function ENT:Initialize()
 	self:DrawShadow(true)
 	self:SetModelScale(math.random(75,125)*0.01)
 	self:Physics()
-	ParticleEffect("blood_impact_red_01",self:GetPos(),Angle(math.random(0,360),math.random(0,360),math.random(0,360)),false)
+	timer.Simple(0.3, function() ParticleEffect("blood_impact_red_01",self:GetPos(),Angle(math.random(0,360),math.random(0,360),math.random(0,360)),false) end)
 	if self.CanFade == true then
 		self.RemoveTime = CurTime() +self.FadeTime
 	end
@@ -46,4 +46,9 @@ function ENT:Physics()
 	end
 end
 
-function ENT:OnTouch(data,phys) ParticleEffect("blood_impact_red_01",self:GetPos(),Angle(math.random(0,360),math.random(0,360),math.random(0,360)),false)  end
+function ENT:OnTouch(data,phys)
+if math.random(1,3) == 1 then
+util.Decal("Blood",self:GetPos(),self:GetPos()+self:GetVelocity())
+end
+ParticleEffect("blood_impact_red_01",self:GetPos(),Angle(math.random(0,360),math.random(0,360),math.random(0,360)),false)
+end
