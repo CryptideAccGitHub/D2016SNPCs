@@ -195,8 +195,17 @@ end
 end
 
 if CurTime() > self.NextIdleSound then
-if self:GetEnemy() == nil then if math.random(1,6) == 1 then sound.Play("imp/imp_idle"..math.random(1,4)..".ogg",self:GetPos()) end else if math.random(1,6) == 1 then sound.Play("imp/imp_distant_short_0"..math.random(1,3)..".ogg",self:GetPos()) end end
-self.NextIdleSound = CurTime() + math.random(1,8)
+	if self:GetEnemy() == nil then 
+		if math.random(1,6) == 1 then
+			sound.Play("imp/imp_idle"..math.random(1,4)..".ogg",self:GetPos())
+			self.NextIdleSound = CurTime() + math.random(1,8)
+		end 
+	else 
+		if math.random(1,3) == 1 then
+			sound.Play("imp/imp_distant_short_0"..math.random(1,3)..".ogg",self:GetPos()) 
+			self.NextIdleSound = CurTime() + math.random(1,8)
+		end 
+	end
 end
 end
 
