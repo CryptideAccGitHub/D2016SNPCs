@@ -140,9 +140,8 @@ function ENT:HandleSchedules(enemy,dist,nearest,disp,time)
 					_y = dir.y
 					self.CTARGET = (self:GetEnemy():GetPos()+Vector(dir.x*500,dir.y*500,0))
 					self.NEXTCTARGET = CurTime()+math.Rand(4,7)
-					self:SetLastPosition(self.CTARGET)
+					self:ChaseEnemy(true, self.CTARGET)
 					self:SetArrivalActivity(ACT_IDLE)
-					self:TASKFUNC_RUNLASTPOSITION()
 					return
 				end
 			end
