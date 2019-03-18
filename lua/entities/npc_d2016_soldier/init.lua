@@ -2,14 +2,11 @@ AddCSLuaFile('init.lua') -- for testing purposes
 AddCSLuaFile('shared.lua')
 include('shared.lua')
 
---Variables
-local self_model = nil
-
 --Basic set-up
-ENT.ModelTable = {"models/monsters/possessed/possessed_soldier.mdl"}
+ENT.ModelTable = {"models/monsters/possessed/possessed_soldier.mdl"} -- Model
 ENT.CollisionBounds = Vector(0,0,0)
 ENT.StartHealth = 250
-ENT.ViewAngle = 180
+ENT.ViewAngle = 180 -- You can`t sneak ppast them
 ENT.Faction = "FACTION_DOOM2016"
 ENT.AllowPropDamage = false
 
@@ -66,11 +63,9 @@ function ENT:HandleSchedules(enemy,dist,nearest,disp,time)
 	else
 		self.i_ShootNumber = 0
 	end
-	
-	if dist > 200 then self:ChaseEnemy() end
 
 	if self:CanPerformProcess() then
-	
+			-- Turning code
 			if self:CheckAngleTo(enemy:GetPos()).y > 50 and self:GetCurrentAnimation() == "idle" then
 				self:PlayActivity("turn_90_left")
 				return
@@ -84,6 +79,7 @@ function ENT:HandleSchedules(enemy,dist,nearest,disp,time)
 				self:PlayActivity("turn_157_right")
 				return
 			elseif math.random(1,20) == 1 and self:FindInCone(enemy,70) and self.i_ShootNumber < 1 and self:GetCurrentAnimation() == "idle" then
+				-- It just does a taunt
 				self:PlayActivity("glance_front_v"..math.random(1,3))
 				sound.Play("possessed_soldier/PossessedSight"..math.random(1,4)..".ogg",self:GetPos())
 			end
@@ -98,11 +94,18 @@ function ENT:HandleSchedules(enemy,dist,nearest,disp,time)
 			return
 		elseif (dist > 300 and dist < 800) then
 
-			self:GetCurrentAnimation() == "runforward" and self:Visible(self:GetEnemy()) then
-			if self.t_NextAttack < CurTime() and math.random(1,5) == 5 then
-			self.t_NextAttack = CurTime() + math.Rand(6,9)
-			self:PlayActivity("shoot_from_run"..math.random(1,5))
-			return
+			if self:GetCurrentAnimation() == "runforward" and self:Visible(self:GetEnemy()) then
+				if self.t_NextAttack < CurTime() and math.random(1,5) == 5 then
+				self.t_NextAttack = CurTime() + math.Rand(6,9)
+				self:PlayActivity("shoot_from_run"..math.random(1,5))
+				return
+				end
+			elseif (self:GetCurrentAnimation() == "walkforward" or self:GetCurrentAnimation() == "idle") and self:Visible(self:GetEnemy()) then
+				if self.t_NextHeavyAttack < CurTime() and math.random(1,5) == 5 then
+				self.t_NextHeavyAttack = CurTime() + math.Rand(6,9)
+				--self:PlayActivity("shoot_from_run"..math.random(1,5))
+				return
+				end
 			end
 
 		end
@@ -126,6 +129,7 @@ function ENT:HandleSchedules(enemy,dist,nearest,disp,time)
 		
 		elseif self.CSTATE == "InFight_Rush" then
 			self.tbl_Animations["Run"] = {"runforward"}
+			self:ChaseEnemy()
 			if (self.t_NextState < CurTime() and dist < 500) or (dist < 200 and math.random(1,2)==1) then
 				self.t_NextState = CurTime() + math.Rand(5,8)
 				self.CSTATE = "InFight"
@@ -133,7 +137,7 @@ function ENT:HandleSchedules(enemy,dist,nearest,disp,time)
 		
 		elseif self.CSTATE == "InFight" then
 			self.tbl_Animations["Run"] = {"walkforward"}
-			
+			self:ChaseEnemy()
 			if (self.t_NextState < CurTime() and dist > 500) or (dist > 700 and math.random(1,2)==1) then
 				self.t_NextState = CurTime() + math.Rand(5,8)
 				self.CSTATE = "InFight_Rush"
@@ -155,8 +159,10 @@ end
 end
 
 if CurTime() > self.t_NextIdleSound then
-if math.random(1,5) == 1 then sound.Play("possessed_soldier/PossessedIdle"..math.random(1,2)..".ogg",self:GetPos()) end
+if math.random(1,5) == 1 then 
+sound.Play("possessed_soldier/PossessedIdle"..math.random(1,2)..".ogg",self:GetPos()) 
 self.t_NextIdleSound = CurTime() + math.Rand(3,8)
+end
 end
 
 end
