@@ -6,7 +6,7 @@ include('shared.lua')
 ENT.ModelTable = {"models/monsters/possessed/possessed_soldier.mdl"} -- Model
 ENT.CollisionBounds = Vector(0,0,0)
 ENT.StartHealth = 250
-ENT.ViewAngle = 180 -- You can`t sneak ppast them
+ENT.ViewAngle = 180 -- You can`t sneak past them
 ENT.Faction = "FACTION_DOOM2016"
 ENT.AllowPropDamage = false
 
@@ -137,7 +137,7 @@ function ENT:HandleSchedules(enemy,dist,nearest,disp,time)
 		
 		elseif self.CSTATE == "InFight" then
 			self.tbl_Animations["Run"] = {"walkforward"}
-			self:ChaseEnemy()
+			self:ChaseEnemy(true, nearest)
 			if (self.t_NextState < CurTime() and dist > 500) or (dist > 700 and math.random(1,2)==1) then
 				self.t_NextState = CurTime() + math.Rand(5,8)
 				self.CSTATE = "InFight_Rush"
