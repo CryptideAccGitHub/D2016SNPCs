@@ -4,14 +4,12 @@ include('shared.lua')
 
 --Variables
 local deco = GetConVar("d2016_deco"):GetInt()
-local model = GetConVar("d2016_models"):GetInt()
-local self_model = nil
 
 --Basic set-up
-ENT.ModelTable = {"models/monsters/imp/imp.mdl"}
+ENT.ModelTable = {"models/monsters/imp/imp.mdl"} -- Model
 ENT.CollisionBounds = Vector(0,0,0)
 ENT.StartHealth = 125
-ENT.ViewAngle = 180
+ENT.ViewAngle = 180 -- You can`t sneak ppast them
 ENT.Faction = "FACTION_DOOM2016"
 ENT.AllowPropDamage = false
 
@@ -49,7 +47,7 @@ function ENT:SetInit()
 	self:CustomEffects()
 	self.CanWander = false
 	DEMON_COUNT = DEMON_COUNT+1
-	
+	-- Spawn animation
 	timer.Simple(0.05,function()
 	self:PlayActivity("spawn_teleport"..math.random(1,5))
 	end)
@@ -61,15 +59,13 @@ function ENT:HandleSchedules(enemy,dist,nearest,disp,time)
 	--self:ChaseEnemy()
 	if self:CanPerformProcess() then
 	
-		self:SetIdleAnimation("idle")
+		--[[self:SetIdleAnimation("idle") -- Required due to bug]]
 				
-			if self:CheckAngleTo(enemy:GetPos()).y > 60 and self:GetCurrentAnimation() == "idle" then
-					self:PlayActivity("turn90left")
-					--self:TASKFUNC_FACEPOSITION(enemy:GetPos())
-			elseif self:CheckAngleTo(enemy:GetPos()).y < -60 and self:GetCurrentAnimation() == "idle" then
-					self:PlayActivity("turn90right")
-					--self:TASKFUNC_FACEPOSITION(enemy:GetPos())
-			end
+		if self:CheckAngleTo(enemy:GetPos()).y > 60 and self:GetCurrentAnimation() == "idle" then
+			self:PlayActivity("turn90left")
+		elseif self:CheckAngleTo(enemy:GetPos()).y < -60 and self:GetCurrentAnimation() == "idle" then
+			self:PlayActivity("turn90right")
+		end
 		
 		
 		if self.CSTATE ~= "Idle_NoEnemy" and self.EnemyMemoryCount < 1 then
@@ -87,6 +83,7 @@ function ENT:HandleSchedules(enemy,dist,nearest,disp,time)
 		-- Just an idle
 		
 		if self.CSTATE == "Idle_NoEnemy" then
+			--Alert code
 			if self:GetEnemy() != nil then
 				self.CanWander = true
 				self.CSTATE = "InFight"
