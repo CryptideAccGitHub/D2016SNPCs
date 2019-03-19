@@ -5,22 +5,12 @@ AddCSLuaFile('doom2016_utilities.lua')
 include('doom2016_utilities.lua')
 
 --[[
-Hello human.
+Hey there! Fuck you, if you want to steal my code! If not, then go the hell out of here! Its my autorun folder!
 
-If you`re here, it means that you decompiled and opened my addon or just viewig it on GitHub.
-Its not my problem why and how, but i want to ask you to don`t steal anything from it. Please.
-
-You can take all models, sounds and textures because they`re exclusive now in Garry`s Mod workshop.
-That resources don`t belongs to me, because DOOM (2016) and it`s resources was made by ID Software.
-I used them without any permission, and it`s not bad.
-I dont know who are you, are you a fucked up stealer, or you`re just a guy who tries to find examples for his work.
-Maybe you want to do it because you just want to know how it works (don`t try, even i dont know).
-Anyway, if you want to steal it, close this file and uninstall your OC. Now.
-
-Good luck.
-
-                                                                                      With love, REXMaster.
+Although, you can use any resource files, if you`ll credit ID Software and Bethesda for creating and me(REXMaster)
+for ripping and adapting them.
 ]]
+
 CPTBase.RegisterMod("DOOM (2016) SNPCs Redux - Part 1","0.2")
 
 D2016_BASEMOUNTED = true
