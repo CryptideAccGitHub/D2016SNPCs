@@ -16,7 +16,6 @@ ENT.AllowPropDamage = false
 ENT.BloodEffect = {"blood_impact_red_01"}
 
 ENT.Possessor_CanBePossessed = true
-ENT.Possessor_UseBoneCamera = true
 
 ENT.LeavesBlood = true
 ENT.AutomaticallySetsUpDecals = true
@@ -48,7 +47,7 @@ function ENT:SetInit()
 	self.CanWander = false
 	DEMON_COUNT = DEMON_COUNT+1
 	-- Spawn animation
-	timer.Simple(0.05,function()
+	timer.Simple(0,function()
 	self:PlayActivity("spawn_teleport"..math.random(1,5))
 	end)
 end
@@ -59,13 +58,34 @@ function ENT:HandleSchedules(enemy,dist,nearest,disp,time)
 	--self:ChaseEnemy()
 	if self:CanPerformProcess() then
 	
-		--[[self:SetIdleAnimation("idle") -- Required due to bug]]
+		self:SetIdleAnimation("idle") -- Required due to bug
 				
 		if self:CheckAngleTo(enemy:GetPos()).y > 60 and self:GetCurrentAnimation() == "idle" then
 			self:PlayActivity("turn90left")
 		elseif self:CheckAngleTo(enemy:GetPos()).y < -60 and self:GetCurrentAnimation() == "idle" then
 			self:PlayActivity("turn90right")
 		end
+		
+		if self:GetCurrentAnimation() == "idle" then
+			if self.NEXTATTACK < CurTime() and self:FindInCone(enemy,90) and dist < 800 and self:CanPerformProcess() and self:Visible(enemy) then
+					if math.random(1,2) == 1 then
+						self:PlayActivity(self:SelectFromTable({"throw_fastball","throw_fastball2"}))
+					else
+						self:PlayActivity(self:SelectFromTable({"throw","throw2","throw3","step_left_throw","step_right_throw"}))
+					end
+					return 
+			elseif self.NEXTATTACK < CurTime() and dist > 800 then
+					self.CSTATE = "InFight_Running"
+					self.NEXTCSTATE = CurTime()+math.Rand(3,8)
+			end
+		else
+			if self:FindInCone(enemy,90) and dist > 100 and dist < 800 and CurTime() > self.NEXTATTACK and self:Visible(self:GetEnemy()) then
+					self:PlayActivity("runforward_throwforward")	
+					self.NEXTATTACK = CurTime() + math.Rand(3,5)
+					return
+			end
+		end
+		
 		
 		
 		if self.CSTATE ~= "Idle_NoEnemy" and self.EnemyMemoryCount < 1 then
@@ -93,6 +113,7 @@ function ENT:HandleSchedules(enemy,dist,nearest,disp,time)
 		-- It runs to enemy/around enemy.
 			
 		elseif self.CSTATE == "InFight_Running" then
+			self.tbl_Animations["Run"] = {"runforward"}
 			if self.NEXTCSTATE < CurTime() and dist > 300 and dist < 800 and self:GetCurrentAnimation() == "runforward" and self:Visible(self:GetEnemy()) then
 				self.CTARGET = self:GetPos()
 				local enemypos = self:GetEnemy():GetPos()
@@ -112,7 +133,10 @@ function ENT:HandleSchedules(enemy,dist,nearest,disp,time)
 				self:RunAway()
 				self.NEXTCSTATE = CurTime()+math.Rand(2,4)
 				return
-			end
+			elseif self:GetCurrentAnimation() == "idle" and math.random(1,5) == 1 then
+				self.CSTATE = "InFight"
+				self.NEXTCSTATE = CurTime()+math.Rand(3,8)
+ 			end
 			
 			if self.NEXTSPECIALMOVEMENT < CurTime() and self:FindInCone(enemy,90) and self:GetCurrentAnimation() == "runforward" then
 				self:PlayActivity(self:SelectFromTable({"diveforward_forward1","diveforward_forward2"}))
@@ -121,12 +145,6 @@ function ENT:HandleSchedules(enemy,dist,nearest,disp,time)
 			elseif self.NEXTSPECIALMOVEMENT < CurTime() and self:GetCurrentAnimation() == "runforward" then
 				self:PlayActivity(self:SelectFromTable({"diveforward_right1","diveforward_right2","diveforward_left1","diveforward_left2"}))
 				self.NEXTSPECIALMOVEMENT = CurTime() + math.Rand(6,12)
-				return
-			end
-			
-			if self:FindInCone(enemy,90) and dist > 200 and dist < 800 and CurTime() > self.NEXTATTACK and self:Visible(self:GetEnemy()) then
-				self:PlayActivity("runforward_throwforward")	
-				self.NEXTATTACK = CurTime() + math.Rand(3,5)
 				return
 			end
 			
@@ -154,25 +172,12 @@ function ENT:HandleSchedules(enemy,dist,nearest,disp,time)
 				return
 			end
 			
-			if (dist < 300) then
+			if (dist < 500) and math.random(1,10) == 1 and self:Visible(enemy) then
 				self:RunAway()
-				self.NEXTCSTATE = CurTime()+math.Rand(4,5)
+				self.NEXTCSTATE = CurTime()+math.Rand(2,3)
 				return
 			end
 			
-			if self.NEXTATTACK < CurTime() and self:FindInCone(enemy,90) and dist < 800 and self:CanPerformProcess() and self:Visible(self:GetEnemy()) then
-				if self.NEXTHEAVYATTACK < CurTime() then
-					self:PlayActivity(self:SelectFromTable({"throw_fastball","throw_fastball2"}))
-					return
-				end
-			elseif self.NEXTATTACK < CurTime() and self:FindInCone(enemy,90) and dist < 800 and self:CanPerformProcess() then
-				self:PlayActivity(self:SelectFromTable({"throw","throw2","throw3","step_left_throw","step_right_throw"}))
-				return 
-			elseif self.NEXTATTACK < CurTime() and dist > 800 then
-				self.CSTATE = "InFight_Running"
-				self.NEXTCSTATE = CurTime()+math.Rand(3,8)
-			end
-		
 			if self.NEXTSPECIALMOVEMENT < CurTime() and self:FindInCone(enemy,90) and self:CanPerformProcess() then
 				self:PlayActivity(self:SelectFromTable({"step_left","step_right"}))
 				self.NEXTSPECIALMOVEMENT = CurTime() + math.random(5,8)
@@ -210,8 +215,21 @@ end
 
 --Utility code--------------------------------------------------------------------------------------------
 
+function ENT:Possess_OnPossessed(possessor)
+possessor:ChatPrint(
+[[
+Imp controls:
+LMB - melee attack.
+RMB - ranged attack.
+Reload - special attack.
+Jump - roll.
+]]
+)
+end
+
 function ENT:Possess_Primary()
 	if self:CanPerformProcess() then
+		self:TASKFUNC_FACEPOSITION(self:Possess_AimTarget())
 		if self:GetCurrentAnimation() ~= "runforward" then
 			self:PlayActivity("meleeforward0"..math.random(1,2))
 		else
@@ -223,12 +241,19 @@ end
 
 function ENT:Possess_Secondary()
 	if self:CanPerformProcess() then
+		self:TASKFUNC_FACEPOSITION(self:Possess_AimTarget())
 		if self:GetCurrentAnimation() ~= "runforward" then
-			--self:PlayActivity(self:SelectFromTable({"throw","throw2","throw3"}))
-			self:PlayActivity(self:SelectFromTable({"throw3"}))
+			self:PlayActivity(self:SelectFromTable({"throw"}))
 		else
 			self:PlayActivity("runforward_throwforward")	
 		end
+	end	
+end
+
+function ENT:Possess_Reload()
+	if self:CanPerformProcess() then
+		self:TASKFUNC_FACEPOSITION(self:Possess_AimTarget())
+		self:PlayActivity(self:SelectFromTable({"throw_fastball","throw_fastball2"}))	
 	end	
 end
 
@@ -259,7 +284,7 @@ function ENT:HandleEvents(...)
 		self.StartLight1:Fire("TurnOff", "", 0)
 		self.StartLight2:Fire("TurnOff", "", 0)
 		if (arg1 == "melee") then
-			self:Attack(self:GetPos()+self:OBBCenter(),70,100,20)
+			self:Attack((self:GetAttachment(self:LookupAttachment("origin"))).Pos+self:OBBCenter(),70,100,20)
 		elseif(arg1 == "right_fireball") then
 			self.StartLight1:Fire("TurnOn", "", 0)
 			ParticleEffectAttach("imp_fireball",PATTACH_POINT_FOLLOW,self,self:LookupAttachment("righthand"))
@@ -291,7 +316,7 @@ end
 
 function ENT:RangeAttack_Normal(att)
 	self:StopParticles()
-	self.NEXTATTACK = CurTime()+math.Rand(3,8)
+	self.NEXTATTACK = CurTime()+math.Rand(2,5)
 	local fireball = ents.Create("obj_proj_impball")
 	fireball:SetPos(self:GetAttachment(self:LookupAttachment(att)).Pos)
 	fireball:SetOwner(self)
@@ -299,21 +324,21 @@ function ENT:RangeAttack_Normal(att)
 	fireball:Activate()
 	local phys = fireball:GetPhysicsObject()
 	if IsValid(phys) then
-		phys:SetVelocity(self:SetUpRangeAttackTarget()*1.5 +self:GetUp() * 150 + VectorRand()*math.Rand(1,40))
+		phys:SetVelocity(self:SetUpRangeAttackTarget()*1.5 +self:GetUp() * 150 + VectorRand()*math.Rand(1,20))
 	end
 end
 
 function ENT:RangeAttack_Powered(att)
 	self:StopParticles()
-	self.NEXTHEAVYATTACK = CurTime()+math.Rand(7,15)
-	local fireball = ents.Create("obj_proj_impball")
+	self.NEXTHEAVYATTACK = CurTime()+math.Rand(3,8)
+	local fireball = ents.Create("obj_proj_impball_big")
 	fireball:SetPos(self:GetAttachment(self:LookupAttachment(att)).Pos)
 	fireball:SetOwner(self)
 	fireball:Spawn()
 	fireball:Activate()
 	local phys = fireball:GetPhysicsObject()
 	if IsValid(phys) then
-		phys:SetVelocity(self:SetUpRangeAttackTarget()*1.5 + VectorRand()*math.Rand(1,40))
+		phys:SetVelocity(self:SetUpRangeAttackTarget()*1.5 + VectorRand()*math.Rand(1,10))
 	end
 end
 

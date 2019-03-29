@@ -1,0 +1,15 @@
+"VertexlitGeneric"
+{
+	"$basetexture" "models/monsters/possessed/possessed_scientist_d"
+	"$bumpmap" "models/monsters/possessed/possessed_scientist_n"
+
+
+	"$phongexponent" "10"
+
+	"$phong" "1"
+	"$phongfresnelranges"	"[1 1.05 1.25]"
+	"$phongboost"	"0.7"
+
+	"$ambientocclusion"	"0.9"
+
+}

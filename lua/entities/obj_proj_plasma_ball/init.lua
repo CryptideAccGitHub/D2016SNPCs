@@ -7,7 +7,7 @@ ENT.SolidType = SOLID_CUSTOM
 ENT.CollisionGroup = COLLISION_GROUP_PROJECTILE
 ENT.MoveCollide = COLLISION_GROUP_PROJECTILE
 ENT.MoveType = MOVETYPE_VPHYSICS
-ENT.Damage = math.random(3,5)
+ENT.Damage = math.random(5,8)
 ENT.NextParticleT = 0
 ENT.MassAmount = 1
 
@@ -47,7 +47,7 @@ end
 
 function ENT:CustomEffects()
 	ParticleEffectAttach("soldier_plasmaball", PATTACH_ABSORIGIN_FOLLOW, self, 0)
-
+    if GetConVar("d2016_deco"):GetInt() > 0 then
 	self.StartLight1 = ents.Create("light_dynamic")
 	self.StartLight1:SetKeyValue("brightness", "2")
 	self.StartLight1:SetKeyValue("distance", "50")
@@ -59,6 +59,7 @@ function ENT:CustomEffects()
 	self.StartLight1:Activate()
 	self.StartLight1:Fire("TurnOn", "", 0)
 	self:DeleteOnRemove(self.StartLight1)
+	end
 	
 end
 

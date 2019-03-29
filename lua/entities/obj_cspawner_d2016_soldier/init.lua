@@ -28,3 +28,15 @@ end)
 ParticleEffect("monster_spawn_small",self:GetPos()+self:GetUp()*-35, self:GetAngles())
 sound.Play("sfx_spawn_0"..math.random(1,2)..".ogg",self:GetPos())
 end
+
+function ENT:SpawnEnt(key,data)
+	local ent = data.Name
+	local ent = ents.Create(self:SelectFromTable(data.Class))
+	ent:SetPos(self:GetPos() + data.AddPos)
+	ent:SetAngles(Angle(0,math.random(0,360)))
+	ent:Spawn()
+	ent:Activate()
+	self:DeleteOnRemove(ent)
+	ent:DeleteOnRemove(self)
+	table.insert(self.SpawnedEnts,key,ent)
+end
