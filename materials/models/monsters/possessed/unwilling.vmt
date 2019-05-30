@@ -3,7 +3,7 @@
 	"$basetexture" "models/monsters/possessed/unwilling_d"
 	"$bumpmap" "models/monsters/possessed/unwilling_n"
 
-	"$phongexponent" "6"
+	"$phongexponent" "3"
 
 	"$phong" "1"
 	"$phongfresnelranges"	"[1 1.05 1.25]"

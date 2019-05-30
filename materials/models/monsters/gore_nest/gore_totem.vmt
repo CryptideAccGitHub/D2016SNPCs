@@ -9,8 +9,4 @@ $bumpmap "models\monsters\gore_nest\gore_totem_n"
 "$phongfresnelranges"	"[1 1.05 1.25]"
 "$phongboost"	"0.6"
 "$ambientocclusion"	"0.9"
-
-$selfillum 0
-$selfillummask "models\monsters\gore_nest\gore_totem_l"
-$selfillumtint "[5 4 0]"
 }

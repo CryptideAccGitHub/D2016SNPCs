@@ -7,7 +7,6 @@ ENT.CollisionGroup = COLLISION_GROUP_DEBRIS
 ENT.MoveCollide = 3
 ENT.MoveType = MOVETYPE_VPHYSICS
 ENT.CanFade = true
-ENT.FadeTime = 4
 ENT.Damage = 10
 ENT.DamageType = DMG_SLASH
 ENT.RemoveOnHitEntity = false
@@ -19,18 +18,16 @@ ENT.IdleSoundLevel = 75
 function ENT:Initialize()
 	self:SetMoveCollide(self.MoveCollide)
 	self:SetCollisionGroup(self.CollisionGroup)
-	self:SetMaterial("models/flesh")
-	self:SetModel("models/gibs/strider_gib4.mdl")
+	self:SetModel("models/monsters/gibs/generic_gibs"..math.random(1,6)..".mdl")
 	self:PhysicsInit(self.PhysicsType)
 	self:SetMoveType(self.MoveType)
 	self:SetSolid(self.SolidType)
 	self:SetNoDraw(false)
 	self:DrawShadow(true)
-	self:SetModelScale(math.random(75,125)*0.01)
 	self:Physics()
-	timer.Simple(0.3, function() ParticleEffect("blood_impact_red_01",self:GetPos(),Angle(math.random(0,360),math.random(0,360),math.random(0,360)),false) end)
+	ParticleEffectAttach("d_bloodtrail",PATTACH_ABSORIGIN_FOLLOW,self,0)
 	if self.CanFade == true then
-		self.RemoveTime = CurTime() +self.FadeTime
+		self.RemoveTime = CurTime() + GetConVar("d2016_gibfadingtime"):GetInt()
 	end
 	self.IsDead = false
 end
@@ -47,8 +44,12 @@ function ENT:Physics()
 end
 
 function ENT:OnTouch(data,phys)
-if math.random(1,3) == 1 then
+self:StopParticles()
+if math.random(1,5) == 1 then
+self:EmitSound("d4t/sfx_gore_small.ogg")
 util.Decal("Blood",self:GetPos(),self:GetPos()+self:GetVelocity())
-end
 ParticleEffect("blood_impact_red_01",self:GetPos(),Angle(math.random(0,360),math.random(0,360),math.random(0,360)),false)
+end
+--ParticleEffect("blood_impact_red_01",self:GetPos(),Angle(math.random(0,360),math.random(0,360),math.random(0,360)),false)
+--ParticleEffect("blood_impact_red_01",self:GetPos(),Angle(math.random(0,360),math.random(0,360),math.random(0,360)),false)
 end

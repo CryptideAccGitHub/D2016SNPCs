@@ -1,0 +1,14 @@
+{
+	"title"		:	"[CPT] DOOM (2016) SNPCs - Part 1",
+	"type"		:	"Npc",
+	"tags"		:	[ "fun", "roleplay" ],
+	"ignore"	:
+	[
+		"*.psd",
+		"*.jpg",
+		"*.png",
+		"*.md",
+		"*.gma*",
+		"*.bat*"
+	]
+}

@@ -1,0 +1,7 @@
+"UnlitGeneric"
+{
+	"$basetexture" "vgui/entities/npc_d2016_lostsoul"
+	"$translucent" 1
+	"$vertexalpha" 1
+	"$vertexcolor" 1
+}

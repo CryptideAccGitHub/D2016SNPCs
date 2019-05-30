@@ -7,7 +7,7 @@ ENT.SolidType = SOLID_CUSTOM
 ENT.CollisionGroup = COLLISION_GROUP_PROJECTILE
 ENT.MoveCollide = COLLISION_GROUP_PROJECTILE
 ENT.MoveType = MOVETYPE_VPHYSICS
-ENT.Damage = math.random(30,50)
+ENT.Damage = math.random(50,60)
 ENT.NextParticleT = 0
 ENT.MassAmount = 1
 
@@ -77,10 +77,12 @@ function ENT:OnTouch(data,phys)
 			if v:IsNPC() or v:IsPlayer() then
 				if v:GetClass() != "npc_turret_floor" then
 					local dmg = DamageInfo()
-					if v:IsPlayer() then
+					if self:GetHitEntity():IsPlayer() then
 					dmg:SetDamage(self.Damage)
-					elseif v:IsNPC() then
+					elseif self:GetHitEntity():IsNPC() then
 					dmg:SetDamage(self.Damage*3)
+					elseif self:GetHitEntity().Faction == "FACTION_DOOM2016" then
+					dmg:SetDamage(0)
 					end
 					dmg:SetAttacker(self:GetEntityOwner())
 					dmg:SetInflictor(self)

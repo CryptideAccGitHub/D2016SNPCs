@@ -47,7 +47,7 @@ end
 
 function ENT:CustomEffects()
 	ParticleEffectAttach("soldier_plasmaball", PATTACH_ABSORIGIN_FOLLOW, self, 0)
-    if GetConVar("d2016_deco"):GetInt() > 0 then
+    if GetConVar("d2016_deco"):GetInt() == 2 then
 	self.StartLight1 = ents.Create("light_dynamic")
 	self.StartLight1:SetKeyValue("brightness", "2")
 	self.StartLight1:SetKeyValue("distance", "50")
@@ -75,7 +75,7 @@ function ENT:OnTouch(data,phys)
 		self.IsDead = true
 		self:SetHitEntity(data.HitEntity)
 		self:DeathEffects()
-		if self:GetHitEntity():IsPlayer() or self:GetHitEntity():IsNPC() then
+		if self:GetHitEntity():IsPlayer() or self:GetHitEntity():IsNPC() and not self:GetHitEntity().Faction == "FACTION_DOOM2016" then
 			if self:GetHitEntity():GetClass() != "npc_turret_floor" then
 				local dmg = DamageInfo()
 				if self:GetHitEntity():IsPlayer() then

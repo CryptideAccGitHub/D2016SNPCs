@@ -1,0 +1,1 @@
+cd C:\Steam\steamapps\common\GarrysMod\bin & gmad.exe create -folder "%CD%"  -out "%CD%\addon.gma" & gmpublish.exe update -addon "%CD%\addon.gma" -id 1580444660 -changes "CHANGELOG" & pause /

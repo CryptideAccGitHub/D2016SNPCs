@@ -1,13 +1,12 @@
 VertexLitGeneric
 {
-$basetexture "models\monsters\mancubus\mancubus_body_diffuse"
-$bumpmap "models\monsters\mancubus\mancubus_body_normal"
+$basetexture "models\monsters\mancubus\mancubus_body_d"
+$bumpmap "models\monsters\mancubus\mancubus_body_n"
 $ambientocclusion "1"
 $phong "1"
 $phongexponent "16"
 $phongfresnelranges	"[1 1.05 1.25]"
 $phongboost	"0.2"
 $selfillum 1
-$selfillummask "models\monsters\mancubus\mancubus_body_lightmap"
 $selfillumtint "[10 8 0]"
 }

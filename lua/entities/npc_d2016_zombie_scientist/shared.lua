@@ -13,7 +13,7 @@ ENT.AdminSpawnable = false
 
 if (CLIENT) then
 local Name = "Posessed Scientist"
-local LangName = "npc_d2016_scientist"
+local LangName = "npc_d2016_zombie_scientist"
 language.Add(LangName, Name)
 killicon.Add(LangName,"HUD/killicons/default",Color(255,80,0,255))
 language.Add("#"..LangName, Name)

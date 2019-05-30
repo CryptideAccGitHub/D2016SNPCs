@@ -5,7 +5,7 @@ include('shared.lua')
 --Basic set-up
 ENT.ModelTable = {"models/monsters/possessed/possessed_soldier.mdl"} -- Model
 ENT.CollisionBounds = Vector(0,0,0)
-ENT.StartHealth = 250
+ENT.StartHealth = 150
 ENT.ViewAngle = 180 -- You can`t sneak past them
 ENT.Faction = "FACTION_DOOM2016"
 ENT.AllowPropDamage = false
@@ -52,12 +52,24 @@ function ENT:SetInit()
 	sound.Play("possessed_soldier/PossessedSight"..math.random(1,4)..".ogg",self:GetPos())
 	self:PlayActivity("hellspawn_v"..math.random(1,5))
 	end)
+	self.StartLight1 = ents.Create("light_dynamic")
+	self.StartLight1:SetKeyValue("brightness", "2")
+	self.StartLight1:SetKeyValue("distance", "220")
+	self.StartLight1:SetLocalPos(self:GetPos())
+	self.StartLight1:SetLocalAngles( self:GetAngles() )
+	self.StartLight1:Fire("Color", "255 20 0")
+	self.StartLight1:SetParent(self)
+	self.StartLight1:Spawn()
+	self.StartLight1:Activate()
+	self.StartLight1:Fire("SetParentAttachment","weapon")
+	self.StartLight1:Fire("TurnOff", "", 0)
+	self:DeleteOnRemove(self.StartLight1)
 end
 
 --Schedule processing--------------------------------------------------------------------------------------------
 
 function ENT:HandleSchedules(enemy,dist,nearest,disp,time)
-	if self.t_NextShot < CurTime() and self:FindInCone(enemy,70) then
+	if self.t_NextShot < CurTime() and self:FindInCone(enemy,90) then
 		if (self.i_ShootNumber > 0 and (self:GetCurrentAnimation() == "idle" or self:GetCurrentAnimation() == "walkforward")) or self.b_IsShooting == true then
 			self:RangeAttack_Normal()
 		end
@@ -81,7 +93,7 @@ function ENT:HandleSchedules(enemy,dist,nearest,disp,time)
 			elseif self:CheckAngleTo(enemy:GetPos()).y > 90 and self:GetCurrentAnimation() == "idle" then
 				self:PlayActivity("turn_157_left")
 				return
-			elseif math.random(1,80) == 1 and self:FindInCone(enemy,70) and self.i_ShootNumber < 1 and self:GetCurrentAnimation() == "idle" then
+			elseif math.random(1,80) == 1 and self:FindInCone(enemy,70) and self.i_ShootNumber < 1 and self:GetCurrentAnimation() == "idle" and self.t_NextAttack > CurTime() then
 				-- It just does a taunt
 				self:PlayActivity("glance_front_v"..math.random(1,3))
 				sound.Play("possessed_soldier/PossessedSight"..math.random(1,4)..".ogg",self:GetPos())
@@ -95,31 +107,29 @@ function ENT:HandleSchedules(enemy,dist,nearest,disp,time)
 			sound.Play("possessed_soldier/PossessedAttackYell"..math.random(1,5)..".ogg",self:GetPos())
 			self:PlayActivity("melee_from_run")
 			return
-		elseif (dist > 300 and dist < 800) and self:FindInCone(enemy,70) and self.t_NextAttack < CurTime() then
+		elseif (dist > 200 and dist < 800) and self:FindInCone(enemy,90) and self.t_NextAttack < CurTime() then
 
 			if self:GetCurrentAnimation() == "run_forward" and self:Visible(self:GetEnemy()) then
 				if math.random(1,3) == 3 then
-					self.t_NextAttack = CurTime() + math.Rand(6,9)
+					self.t_NextAttack = CurTime() + math.Rand(1,3)
 					self:PlayActivity("shoot_from_run"..math.random(1,5))
 					return
 				end
-			elseif (self:GetCurrentAnimation() == "strafewalk_forward" or self:GetCurrentAnimation() == "idle") and self:Visible(self:GetEnemy()) then
-				if math.random(1,3) == 3 then
-					self.t_NextAttack = CurTime() + math.Rand(6,9)
+			elseif (self:GetCurrentAnimation() == "strafewalk_forward" or self:GetCurrentAnimation() == "strafejog_forward" or self:GetCurrentAnimation() == "idle") then
+				if math.random(1,5) == 1 then
+					self.t_NextAttack = CurTime() + math.Rand(0,3)
 					self:PlayActivity("plasma_charge_attack_v"..math.random(1,3))
 					return
+				else
+					self.i_ShootNumber = math.random(5,9)
+					self.t_NextAttack = CurTime() + math.Rand(0,3)
+					return
 				end
-		end
+			end
 
 		end
 		
-		if ((self:GetCurrentAnimation() == "idle" or self:GetCurrentAnimation() == "strafewalk_forward")) and self:FindInCone(enemy,70) and dist > 200 and dist < 800 and self.t_NextAttack < CurTime() then
-			self.i_ShootNumber = math.random(3,9)
-			self.t_NextAttack = CurTime() + math.Rand(6,9)
-			return
-		end
-		
-		if self.CSTATE ~= "Idle_NoEnemy" and self.EnemyMemoryCount < 1 then
+		if self.CSTATE ~= "Idle_NoEnemy" and self:GetEnemy() == nil then
 			self.CSTATE = "Idle_NoEnemy"
 		end
 		
@@ -128,7 +138,7 @@ function ENT:HandleSchedules(enemy,dist,nearest,disp,time)
 				self.CanWander = true
 				self:PlayActivity("combat_taunt_"..math.random(1,6))
 				sound.Play("possessed_soldier/PossessedSight"..math.random(1,4)..".ogg",self:GetPos())
-				self.CSTATE = self:SelectFromTable({"InFight_Rush","InFight"})
+				self.CSTATE = self:SelectFromTable({"InFight_Rush"})
 				return
 			end
 		
@@ -177,42 +187,47 @@ function ENT:HandleSchedules(enemy,dist,nearest,disp,time)
 end
 	
 function ENT:OnThink()
-if self.IsPossessed then
-	if  self.t_NextShot < CurTime() and self.i_ShootNumber > 0 or self.b_IsShooting == true then
-		self:RangeAttack_Normal()
+	if self.IsPossessed then
+		if  self.t_NextShot < CurTime() and self.i_ShootNumber > 0 or self.b_IsShooting == true then
+			self:RangeAttack_Normal()
+		end
+		if self:GetCurrentAnimation() == "idle" then
+			self.b_IsShooting = false
+		end
+	self:LookAtPosUseBone("spine3",self:Possess_AimTarget(),90,60,18,0.5)
+	self:LookAtPosUseBone("head",self:Possess_AimTarget(),90,70,18,0.5)
+	else
+	if self:GetEnemy() ~= nil then
+	self:LookAtPosUseBone("spine3",self:GetEnemy():GetPos()+self:GetEnemy():OBBCenter(),70,60,18,0.5)
+	self:LookAtPosUseBone("head",self:GetEnemy():GetPos()+self:GetEnemy():OBBCenter(),80,90,18,0.5)
 	end
-	if self:GetCurrentAnimation() == "idle" then
-		self.b_IsShooting = false
 	end
-self:LookAtPosUseBone("spine3",self:Possess_AimTarget(),90,60,18,0.5)
-self:LookAtPosUseBone("head",self:Possess_AimTarget(),90,70,18,0.5)
-else
-if self:GetEnemy() ~= nil then
-self:LookAtPosUseBone("spine3",self:GetEnemy():GetPos()+self:GetEnemy():OBBCenter(),70,60,18,0.5)
-self:LookAtPosUseBone("head",self:GetEnemy():GetPos()+self:GetEnemy():OBBCenter(),80,90,18,0.5)
-end
-end
 
-if CurTime() > self.t_NextIdleSound then
-if math.random(1,5) == 1 then 
-sound.Play("possessed_soldier/PossessedIdle"..math.random(1,2)..".ogg",self:GetPos()) 
-self.t_NextIdleSound = CurTime() + math.Rand(3,8)
-end
-end
+	if self:GetCurrentAnimation() == "strafejog_forward" or self:GetCurrentAnimation() == "strafewalk_forward" or self:GetCurrentAnimation() == "idle"  or self:GetCurrentAnimation() == "run_forward" then
+		self:StopParticles()
+		self.StartLight1:Fire("TurnOff",0)
+	end
+
+	if CurTime() > self.t_NextIdleSound then
+	if math.random(1,5) == 1 then 
+	sound.Play("possessed_soldier/PossessedIdle"..math.random(1,2)..".ogg",self:GetPos()) 
+	self.t_NextIdleSound = CurTime() + math.Rand(3,8)
+	end
+	end
 
 end
 
 --Utility code--------------------------------------------------------------------------------------------
 
 function ENT:Possess_OnPossessed(possessor)
-possessor:ChatPrint(
-[[
-Possessed soldier controls:
-LMB - melee attack.
-RMB - ranged attack.
-Reload - special attack.
-]]
-)
+	possessor:ChatPrint(
+	[[
+	Possessed soldier controls:
+	LMB - melee attack.
+	RMB - ranged attack.
+	Reload - special attack.
+	]]
+	)
 end
 
 function ENT:Possess_Primary()
@@ -229,15 +244,15 @@ function ENT:Possess_Secondary()
 		if self:GetCurrentAnimation() == "run_forward" then
 			self:PlayActivity("shoot_from_run"..math.random(1,3))
 		else
+			ParticleEffectAttach("soldier_plasmamuzzle",PATTACH_POINT_FOLLOW,self,self:LookupAttachment("weapon"))
 			self.i_ShootNumber = math.random(1,2)
 		end
 	end	
 end
 
 function ENT:Possess_Reload()
-	self:TASKFUNC_FACEPOSITION(self:Possess_AimTarget())
 	if self.t_NextHeavyAttack < CurTime() then
-			self.t_NextHeavyAttack = CurTime() + math.Rand(6,9)
+			self.t_NextHeavyAttack = CurTime() + 4
 			self:PlayActivity("plasma_charge_attack_v"..math.random(1,3))
 			return
 	end
@@ -254,6 +269,10 @@ function ENT:RangeAttack_Normal()
 	plasmaball:SetOwner(self)
 	plasmaball:Spawn()
 	plasmaball:Activate()
+	if GetConVar("d2016_deco"):GetInt() > 0 then
+			self.StartLight1:Fire("TurnOn",0)
+			timer.Simple(0.2, function() if self:IsValid() then self.StartLight1:Fire("TurnOff",0) end end)
+	end
 	local phys = plasmaball:GetPhysicsObject()
 	if IsValid(phys) then
 		if self.IsPossessed then
@@ -292,15 +311,19 @@ function ENT:HandleEvents(...)
 	if (event == "emit") then
 		self:StopParticles()
 		if (arg1 == "melee") then
-			self:Attack(self:GetPos()+self:OBBCenter(),70,100,25)
+			self:Attack((self:GetAttachment(self:LookupAttachment("origin"))).Pos+self:OBBCenter(),70,100,25)
 		elseif (arg1 == "shoot_start") then
 			self.b_IsShooting = true
 		elseif (arg1 == "shoot_end") then
 			self.b_IsShooting = false
 		elseif (arg1 == "glow_start") then
 			sound.Play(self:SelectFromTable({"possessed_soldier/REDPLASC.ogg"}),self:GetPos())
+			if GetConVar("d2016_deco"):GetInt() > 0 then
+			self.StartLight1:Fire("TurnOn",0)
+			end
 			ParticleEffectAttach("soldier_plasmaglow",PATTACH_POINT_FOLLOW,self,self:LookupAttachment("weapon"))
 		elseif (arg1 == "plasma_shoot") then
+			self.StartLight1:Fire("TurnOff",0)
 			self:RangeAttack_Heavy()
 		end
 	end

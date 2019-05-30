@@ -4,6 +4,7 @@ $basetexture "models\monsters\hellknight\hellknight_body_d"
 $bumpmap "models\monsters\hellknight\hellknight_body_n"
 
 $phong "1"
+$phongexponent "20"
 $phongfresnelranges	"[1 1.05 1.25]"
 $phongboost	"0.3"
 }

@@ -2,13 +2,10 @@ AddCSLuaFile('init.lua') -- for testing purposes
 AddCSLuaFile('shared.lua')
 include('shared.lua')
 
---Variables
-local deco = GetConVar("d2016_deco"):GetInt()
-
 --Basic set-up
 ENT.ModelTable = {"models/monsters/imp/imp.mdl"} -- Model
 ENT.CollisionBounds = Vector(0,0,0)
-ENT.StartHealth = 125
+ENT.StartHealth = 90
 ENT.ViewAngle = 180 -- You can`t sneak ppast them
 ENT.Faction = "FACTION_DOOM2016"
 ENT.AllowPropDamage = false
@@ -27,6 +24,7 @@ ENT.tbl_Animations = {
 ["Walk"] = {"walkforward"}
 }
 ENT.tbl_Capabilities = {CAP_OPEN_DOORS}
+ENT.GoreBones = {"head","spine3","leftleg","leftupleg","rightleg","rightupleg","leftarm","leftforearm","rightarm","rightforearm"}
 
 --Custom set-up
 ENT.ISD2016NPC = true
@@ -46,23 +44,29 @@ function ENT:SetInit()
 	self:CustomEffects()
 	self.CanWander = false
 	DEMON_COUNT = DEMON_COUNT+1
-	-- Spawn animation
-	timer.Simple(0,function()
-	self:PlayActivity("spawn_teleport"..math.random(1,5))
-	end)
+	self.GibDamage = 120
+	self.GoreChance = 2
+	self.GibScale = 1
+	self:SetNoDraw(true)
+	self.IsEssential = true
+	self:SetModelScale(math.random(95,105)*0.01)
+	self:CustomEffects()
+	ParticleEffect("d_monster_spawn_small_01",self:GetPos()+self:GetUp()*-35, self:GetAngles())
+	sound.Play("doom2016/sfx_spawn_0"..math.random(1,2)..".ogg",self:GetPos())
+	timer.Simple(1, function() if self:IsValid(self) then self:PlayActivity("spawn_teleport"..math.random(1,5)) self.IsEssential = false self:SetNoDraw(false) end end)
 end
 
 --Schedule processing--------------------------------------------------------------------------------------------
 
 function ENT:HandleSchedules(enemy,dist,nearest,disp,time)
 	--self:ChaseEnemy()
-	if self:CanPerformProcess() then
+	if self:CanPerformProcess() and self:GetNoDraw() == false then
 	
 		self:SetIdleAnimation("idle") -- Required due to bug
 				
-		if self:CheckAngleTo(enemy:GetPos()).y > 60 and self:GetCurrentAnimation() == "idle" then
+		if self:dCAngleTo(enemy:GetPos()).y > 60 and self:GetCurrentAnimation() == "idle" then
 			self:PlayActivity("turn90left")
-		elseif self:CheckAngleTo(enemy:GetPos()).y < -60 and self:GetCurrentAnimation() == "idle" then
+		elseif self:dCAngleTo(enemy:GetPos()).y < -60 and self:GetCurrentAnimation() == "idle" then
 			self:PlayActivity("turn90right")
 		end
 		
@@ -88,7 +92,7 @@ function ENT:HandleSchedules(enemy,dist,nearest,disp,time)
 		
 		
 		
-		if self.CSTATE ~= "Idle_NoEnemy" and self.EnemyMemoryCount < 1 then
+		if self.CSTATE ~= "Idle_NoEnemy" and self:GetEnemy() == nil then
 		self.CSTATE = "Idle_NoEnemy"
 		end
 		
@@ -117,13 +121,13 @@ function ENT:HandleSchedules(enemy,dist,nearest,disp,time)
 			if self.NEXTCSTATE < CurTime() and dist > 300 and dist < 800 and self:GetCurrentAnimation() == "runforward" and self:Visible(self:GetEnemy()) then
 				self.CTARGET = self:GetPos()
 				local enemypos = self:GetEnemy():GetPos()
-				if self:CheckAngleTo(enemypos).y < 45 and self:CheckAngleTo(enemypos).y > -45 then
+				if self:dCAngleTo(enemypos).y < 45 and self:dCAngleTo(enemypos).y > -45 then
 						self:PlayActivity("runforward_throw_to_idle")
-				elseif self:CheckAngleTo(enemypos).y > 135 or self:CheckAngleTo(enemypos).y < -135 then
+				elseif self:dCAngleTo(enemypos).y > 135 or self:dCAngleTo(enemypos).y < -135 then
 						self:PlayActivity(self:SelectFromTable({"runforward_throw_turn_157_left_to_idle","runforward_throw_turn_157_right_to_idle"}))
-				elseif self:CheckAngleTo(enemypos).y > 45 and self:CheckAngleTo(enemypos).y < 90 then
+				elseif self:dCAngleTo(enemypos).y > 45 and self:dCAngleTo(enemypos).y < 90 then
 						self:PlayActivity("runforward_throw_turn_left_to_idle")
-				elseif self:CheckAngleTo(enemypos).y < -45 and self:CheckAngleTo(enemypos).y > -90 then
+				elseif self:dCAngleTo(enemypos).y < -45 and self:dCAngleTo(enemypos).y > -90 then
 						self:PlayActivity("runforward_throw_turn_right_to_idle")
 				end
 				self.CSTATE = "InFight"
@@ -189,24 +193,26 @@ end
 	
 function ENT:OnThink()
 if self.IsPossessed then
-self:LookAtPosUseBone("spine",self:Possess_AimTarget(),70,60,18,0.5)
-self:LookAtPosUseBone("head",self:Possess_AimTarget(),80,90,18,0.5)
+	self:dCLook("spine",self:Possess_AimTarget(),70,60,18,0.5)
+	self:dCLook("head",self:Possess_AimTarget(),80,90,18,0.5)
 else
-if self:GetEnemy() ~= nil then
-self:LookAtPosUseBone("spine",self:GetEnemy():GetPos()+self:GetEnemy():OBBCenter(),70,60,18,0.5)
-self:LookAtPosUseBone("head",self:GetEnemy():GetPos()+self:GetEnemy():OBBCenter(),80,90,18,0.5)
+	if self:GetEnemy() ~= nil then
+	self:dCLook("spine",self:GetEnemy():GetPos()+self:GetEnemy():OBBCenter(),70,60,18,0.5)
+	self:dCLook("head",self:GetEnemy():GetPos()+self:GetEnemy():OBBCenter(),80,90,18,0.5)
+	end
 end
+if self:GetCurrentAnimation() == "runforward" or self:GetCurrentAnimation() == "walkforward" or self:GetCurrentAnimation() == "idle" then
+	self:StopParticles()
 end
-
 if CurTime() > self.NextIdleSound then
 	if self:GetEnemy() == nil then 
 		if math.random(1,6) == 1 then
-			sound.Play("imp/imp_idle"..math.random(1,4)..".ogg",self:GetPos())
+			sound.Play("doom2016/imp/imp_idle"..math.random(1,4)..".ogg",self:GetPos())
 			self.NextIdleSound = CurTime() + math.random(1,8)
 		end 
 	else 
 		if math.random(1,3) == 1 then
-			sound.Play("imp/imp_distant_short_0"..math.random(1,3)..".ogg",self:GetPos()) 
+			sound.Play("doom2016/imp/imp_distant_short_0"..math.random(1,3)..".ogg",self:GetPos()) 
 			self.NextIdleSound = CurTime() + math.random(1,8)
 		end 
 	end
@@ -284,31 +290,34 @@ function ENT:HandleEvents(...)
 		self.StartLight1:Fire("TurnOff", "", 0)
 		self.StartLight2:Fire("TurnOff", "", 0)
 		if (arg1 == "melee") then
-			self:Attack((self:GetAttachment(self:LookupAttachment("origin"))).Pos+self:OBBCenter(),70,100,20)
+			self.CurrentHitSound = "doom2016/meleehitclaws"..math.random(1,2)..".ogg"
+			self:dCDamage((self:GetAttachment(self:LookupAttachment("origin"))).Pos+self:OBBCenter(),25,100,90)
 		elseif(arg1 == "right_fireball") then
 			self.StartLight1:Fire("TurnOn", "", 0)
-			ParticleEffectAttach("imp_fireball",PATTACH_POINT_FOLLOW,self,self:LookupAttachment("righthand"))
+			ParticleEffectAttach("d_fireball_trail",PATTACH_POINT_FOLLOW,self,self:LookupAttachment("righthand"))
 		elseif(arg1 == "left_fireball") then
 			self.StartLight2:Fire("TurnOn", "", 0)
-			ParticleEffectAttach("imp_fireball",PATTACH_POINT_FOLLOW,self,self:LookupAttachment("lefthand"))
+			ParticleEffectAttach("d_fireball_trail",PATTACH_POINT_FOLLOW,self,self:LookupAttachment("lefthand"))
 		elseif (arg1 == "range_left")  then
-			sound.Play(self:SelectFromTable({"imp/fx_imp_fireball_launch_01.ogg","imp/fx_imp_fireball_launch_02.ogg","imp/fx_imp_fireball_launch_03.ogg"}),self:GetPos())
+			sound.Play(self:SelectFromTable({"doom2016/imp/fx_imp_fireball_launch_01.ogg","doom2016/imp/fx_imp_fireball_launch_02.ogg","doom2016/imp/fx_imp_fireball_launch_03.ogg"}),self:GetPos())
 			self:RangeAttack_Normal("lefthand")
 		elseif (arg1 == "range_right")  then
-			sound.Play(self:SelectFromTable({"imp/fx_imp_fireball_launch_01.ogg","imp/fx_imp_fireball_launch_02.ogg","imp/fx_imp_fireball_launch_03.ogg"}),self:GetPos())
+			sound.Play(self:SelectFromTable({"doom2016/imp/fx_imp_fireball_launch_01.ogg","doom2016/imp/fx_imp_fireball_launch_02.ogg","doom2016/imp/fx_imp_fireball_launch_03.ogg"}),self:GetPos())
 			self:RangeAttack_Normal("righthand")
 		elseif (arg1 == "range_left_powered")  then
 			self:RangeAttack_Powered("lefthand")
 		elseif (arg1 == "range_right_powered")  then
 			self:RangeAttack_Powered("righthand")
 		elseif (arg1 == "right_bigfireball")  then
+			self.StartLight1:Fire("TurnOn", "", 0)
 			sound.Play(self:SelectFromTable({"imp/imp_charge1.ogg"}),self:GetPos())
-			ParticleEffectAttach("imp_bigball",PATTACH_POINT_FOLLOW,self,self:LookupAttachment("righthand"))
+			ParticleEffectAttach("d_bigfireball_charge",PATTACH_POINT_FOLLOW,self,self:LookupAttachment("righthand"))
 		elseif (arg1 == "left_bigfireball")  then
-			sound.Play(self:SelectFromTable({"imp/imp_charge1.ogg"}),self:GetPos())
-			ParticleEffectAttach("imp_bigball",PATTACH_POINT_FOLLOW,self,self:LookupAttachment("lefthand"))
+			self.StartLight2:Fire("TurnOn", "", 0)
+			sound.Play(self:SelectFromTable({"doom2016/imp/imp_charge1.ogg"}),self:GetPos())
+			ParticleEffectAttach("d_bigfireball_charge",PATTACH_POINT_FOLLOW,self,self:LookupAttachment("lefthand"))
 		elseif (arg1 == "roar")  then
-			sound.Play(self:SelectFromTable({"imp/imp_sight1.ogg","imp/imp_sight2.ogg","imp/imp_sight3.ogg","imp/imp_sight4.ogg"}),self:GetPos())
+			sound.Play(self:SelectFromTable({"doom2016/imp/imp_sight1.ogg","doom2016/imp/imp_sight2.ogg","doom2016/imp/imp_sight3.ogg","doom2016/imp/imp_sight4.ogg"}),self:GetPos())
 		end
 	end
 	return true
@@ -316,29 +325,33 @@ end
 
 function ENT:RangeAttack_Normal(att)
 	self:StopParticles()
-	self.NEXTATTACK = CurTime()+math.Rand(2,5)
-	local fireball = ents.Create("obj_proj_impball")
+	self.NEXTATTACK = CurTime()+math.Rand(1,3)
+	local fireball = ents.Create("obj_dproj_impfireball")
 	fireball:SetPos(self:GetAttachment(self:LookupAttachment(att)).Pos)
 	fireball:SetOwner(self)
 	fireball:Spawn()
 	fireball:Activate()
 	local phys = fireball:GetPhysicsObject()
 	if IsValid(phys) then
-		phys:SetVelocity(self:SetUpRangeAttackTarget()*1.5 +self:GetUp() * 150 + VectorRand()*math.Rand(1,20))
+		phys:SetVelocity(self:SetUpRangeAttackTarget()*1.4 +self:GetUp() * 180)
 	end
 end
 
 function ENT:RangeAttack_Powered(att)
 	self:StopParticles()
-	self.NEXTHEAVYATTACK = CurTime()+math.Rand(3,8)
-	local fireball = ents.Create("obj_proj_impball_big")
+	self.NEXTHEAVYATTACK = CurTime()+math.Rand(1,5)
+	local fireball = ents.Create("obj_dproj_impfireball_big")
 	fireball:SetPos(self:GetAttachment(self:LookupAttachment(att)).Pos)
 	fireball:SetOwner(self)
 	fireball:Spawn()
 	fireball:Activate()
 	local phys = fireball:GetPhysicsObject()
 	if IsValid(phys) then
-		phys:SetVelocity(self:SetUpRangeAttackTarget()*1.5 + VectorRand()*math.Rand(1,10))
+		if self.IsPossessed then
+			phys:SetVelocity((self:Possess_AimTarget() - fireball:GetPos()):GetNormal() *1200 +VectorRand()*math.Rand(0,25))
+		else
+			phys:SetVelocity(((self:GetEnemy():GetPos() +self:GetEnemy():OBBCenter()) -fireball:GetPos() +self:GetEnemy():GetVelocity() *0.15):GetNormal() *1200 +VectorRand()*math.Rand(0,25))
+		end	
 	end
 end
 
@@ -348,34 +361,7 @@ return true
 end
 end
 
-function ENT:CustomEffects()
-	if deco ~= 0 then
-	self.eyel = ents.Create("env_sprite")
-	self.eyel:SetKeyValue("model","cptbase/sprites/glow01.spr")
-	self.eyel:SetKeyValue("rendermode","5")
-	self.eyel:SetKeyValue("rendercolor","255 80 0")
-	self.eyel:SetKeyValue("scale","0.06")
-	self.eyel:SetKeyValue("spawnflags","1")
-	self.eyel:SetParent(self)
-	self.eyel:Fire("SetParentAttachment","lefteye",0)
-	self.eyel:Spawn()
-	self.eyel:Activate()
-	self:DeleteOnRemove(self.eyel)
-	
-	self.eyer = ents.Create("env_sprite")
-	self.eyer:SetKeyValue("model","cptbase/sprites/glow01.spr")
-	self.eyer:SetKeyValue("rendermode","5")
-	self.eyer:SetKeyValue("rendercolor","255 80 0")
-	self.eyer:SetKeyValue("scale","0.06")
-	self.eyer:SetKeyValue("spawnflags","1")
-	self.eyer:SetParent(self)
-	self.eyer:Fire("SetParentAttachment","righteye",0)
-	self.eyer:Spawn()
-	self.eyer:Activate()
-	self:DeleteOnRemove(self.eyer)
-	
-	end
-	
+function ENT:CustomEffects()	
 	self.StartLight1 = ents.Create("light_dynamic")
 	self.StartLight1:SetKeyValue("brightness", "3")
 	self.StartLight1:SetKeyValue("distance", "220")
@@ -408,20 +394,9 @@ DEMON_COUNT = DEMON_COUNT-1
 end
 
 function ENT:OnDeath(dmg,dmginfo,hitbox)
-	if dmg:GetDamage() > 100 then
-		self.HasDeathRagdoll = false
-		for i=1,math.random(4,6) do
-			local gib = ents.Create("obj_doom_cgore")
-			gib:SetPos(self:GetPos()+self:OBBCenter() + VectorRand()*20)
-			gib:SetAngles(Angle(math.random(0,360),math.random(0,360),math.random(0,360)))
-			gib:SetOwner(self)
-			gib:Spawn()
-			ParticleEffect("blood_impact_red_big",self:GetPos()+self:OBBCenter(),Angle(math.random(0,360),math.random(0,360),math.random(0,360)),false)
-			gib:Activate()
-			local phys = gib:GetPhysicsObject()
-			if IsValid(phys) then
-				phys:SetVelocity(Vector(math.Rand(-80,80),math.Rand(-80,80),math.Rand(-80,80)) +self:GetUp() * 200 + dmg:GetDamageForce()/20)
-			end
-		end
+	if dmg:GetDamage() >= self.GibDamage then
+		self:dGib(dmg)
+	else
+		self:EmitSound("doom2016/hellknight/imp_death"..math.random(1,4)..".ogg")
 	end
 end

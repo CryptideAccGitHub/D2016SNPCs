@@ -2,14 +2,10 @@ VertexLitGeneric
 {
 $basetexture "models\monsters\imp\imp_d"
 $bumpmap "models\monsters\imp\imp_n"
-
 "$phongexponent" "20"
-
 "$phong" "1"
 "$phongfresnelranges"	"[1 1.05 1.25]"
 "$phongboost"	"0.6"
-"$ambientocclusion"	"0.9"
 $selfillum 1
-$selfillummask "models\monsters\imp\imp_l"
 $selfillumtint "[5 4 0]"
 }

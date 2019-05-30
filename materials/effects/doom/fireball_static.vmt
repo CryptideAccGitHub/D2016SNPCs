@@ -1,0 +1,18 @@
+"UnlitGeneric"
+{
+	"$basetexture" "effects/doom/fireball_static"
+	"$vertexalpha" 1
+	"$vertexcolor" 1
+	"$additive" 1
+	"$translucent" 1
+
+"Proxies" 
+{ 
+"AnimatedTexture" 
+{ 
+"animatedTextureVar" "$basetexture" 
+"animatedTextureFrameNumVar" "$frame" 
+"animatedTextureFrameRate" "20" 
+}
+} 
+}
