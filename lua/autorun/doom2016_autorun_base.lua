@@ -29,6 +29,7 @@ CPTBase.AddNPC("Imp","npc_d2016_imp", Category); CPTBase.AddParticleSystem("part
 CPTBase.AddNPC("Possessed Scientist","npc_d2016_zombie_scientist", Category);
 CPTBase.AddNPC("Possessed Worker","npc_d2016_zombie_worker", Category);
 CPTBase.AddNPC("Unwilling","npc_d2016_zombie_hell", Category);
+CPTBase.AddParticleSystem("particles/d2016_vfx.pcf",{"d_plasmexplo_01"})
 
 if D2016_PACK2MOUNTED then
 --CPTBase.AddNPC("Hellrazer","obj_d2016_hellrazer_spawner", Category)

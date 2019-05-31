@@ -69,7 +69,7 @@ function ENT:HandleSchedules_Fly(enemy,dist,nearest,disp)
 				self.StartLight1:Fire("TurnOn", "", 0)
 				self:StopParticles()
 				ParticleEffectAttach("lostsoul_fire",PATTACH_ABSORIGIN_FOLLOW,self,self:LookupAttachment("origin"))
-				timer.Simple(math.Rand(0,5),function() if self:IsValid() then
+				timer.Simple(math.Rand(0,5),function() if self:IsValid() and IsValid(enemy) and not self.IsPossessed then
 					self:PlayActivity("charge_into")
 					self:EmitSound("doom2016/lostsoul/soul_att.ogg")
 					self:SetIdleAnimation("idle_open")
@@ -101,12 +101,46 @@ function ENT:HandleSchedules_Fly(enemy,dist,nearest,disp)
 end
 	
 function ENT:OnThink()
-	if self:GetEnemy() == nil and self:GetNoDraw() == false then
+	if self.IsPossessed then
+		if self.s_CState == "attack" then
+			target = (self:Possess_AimTarget() - self:GetPos()):GetNormal() * 350
+			self:SetVelocity(target)
+		end
+		self:dCLook("origin", self:Possess_AimTarget(),90,90,18,1)
+	else
+		if self:GetEnemy() == nil and self:GetNoDraw() == false and self.s_CState == "attack" then
 			self.s_CState = "idle"
 			self:StopParticles()
 			ParticleEffectAttach("lostsoul_fireblu",PATTACH_ABSORIGIN_FOLLOW,self,self:LookupAttachment("origin"))
 			self:SetFlySpeed(100)
 			self.StartLight1:Fire("TurnOff", "", 0)
+		end
+	end
+end
+
+function ENT:Possess_OnPossessed(possessor)
+	possessor:ChatPrint(
+[[
+Lost soul controls:
+ - LMB - charge attack
+]]
+	)
+end
+
+function ENT:Possess_Primary()
+	self:PlayActivity("charge_into")
+	self:StopParticles()
+	ParticleEffectAttach("lostsoul_fire",PATTACH_ABSORIGIN_FOLLOW,self,self:LookupAttachment("origin"))
+	self:EmitSound("doom2016/lostsoul/soul_att.ogg")
+	self:SetIdleAnimation("idle_open")
+	self.s_CState = "attack"
+	self:SetFlySpeed(300)
+	return
+end
+
+function ENT:Touch()
+	if self.s_CState == "attack" then
+		self:OnDeath()
 	end
 end
 
@@ -119,6 +153,9 @@ function ENT:OnDeath(dmg,dmginfo,hitbox)
 		local effectdata = EffectData()
 		effectdata:SetOrigin(self:GetPos())
 		util.Effect( "Explosion",	effectdata )
+		if self.IsPossessed then
+			util.BlastDamage(self, self.Possessor, self:GetPos(), 100, 100)
+		end
 		self:Remove()
 	else
 		self:dSpawnLostSoulGib(dmg)

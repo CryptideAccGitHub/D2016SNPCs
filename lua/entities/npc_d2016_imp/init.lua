@@ -225,10 +225,10 @@ function ENT:Possess_OnPossessed(possessor)
 possessor:ChatPrint(
 [[
 Imp controls:
-LMB - melee attack.
-RMB - ranged attack.
-Reload - special attack.
-Jump - roll.
+ - LMB  - melee attack.
+ - RMB  - ranged attack.
+ - Reload - special attack.
+ - Jump - roll.
 ]]
 )
 end

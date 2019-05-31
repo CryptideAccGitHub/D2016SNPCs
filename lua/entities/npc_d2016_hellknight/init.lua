@@ -117,6 +117,55 @@ function ENT:OnThink()
 	end
 end
 
+function ENT:Possess_OnPossessed(possessor)
+possessor:ChatPrint(
+[[
+Hellknight controls:
+ - LMB  - melee attack.
+ - RMB  - long melee attack.
+ - Jump - leap attack.
+ - R    - taunt.
+]]
+)
+end
+
+function ENT:Possess_Primary(possessor)
+	if self:CanPerformProcess() then
+		self:PlayActivity(self:SelectFromTable({"meleeforward_close","meleeforward_close7","meleeforward_close5"}))
+	end
+end
+
+function ENT:Possess_Secondary(possessor)
+	if self:CanPerformProcess() then
+		self:PlayActivity(self:SelectFromTable({"meleeforward5_1","meleeforward3_1","meleeforward4_med"}))
+	end
+end
+
+function ENT:Possess_Reload(possessor)
+	if self:CanPerformProcess() then
+		sound.Play("doom2016/hellknight/sight"..math.random(1,2)..".ogg",self:GetPos())
+		self:PlayActivity(self:SelectFromTable({"reaction_1","reaction_2"}))
+	end
+end
+
+function ENT:Possess_Jump(possessor)
+	if self:CanPerformProcess() then
+		if self:GetCurrentAnimation() == "charge" then
+			self:PlayActivity(self:SelectFromTable({"charge_leapattack","charge_leapattack_5"}))
+			timer.Simple(0.4, function() if self:IsValid() and (self:GetCurrentAnimation() == "charge_leapattack" or self:GetCurrentAnimation() == "charge_leapattack_5") and not self:IsFalling() then
+					self:SetVelocity(self:GetUp()*300 + self:GetForward()*2000)
+				end
+			end)
+			timer.Simple(0.8, function() if self:IsValid() and (self:GetCurrentAnimation() == "charge_leapattack" or self:GetCurrentAnimation() == "charge_leapattack_5") then
+				self:SetVelocity(self:GetUp()*-300)
+				end
+			end)
+		else
+			self:PlayActivity(self:SelectFromTable({"meleeforward_close6"}))
+		end
+	end
+end
+
 --Utility code--------------------------------------------------------------------------------------------
 
 function ENT:HandleEvents(...)
